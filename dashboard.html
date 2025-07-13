@@ -533,8 +533,9 @@
                 const file1Base64 = await fileToBase64(uploadedFiles.file1);
                 const file2Base64 = await fileToBase64(uploadedFiles.file2);
 
-                // FIXED: Match the format expected by your n8n workflow
+                // FIXED: Add mode field to match your working n8n workflow format
                 const formData = {
+                    mode: 'compare_dashboard',  // CRITICAL: This makes it work with your n8n workflow
                     file1: {
                         name: uploadedFiles.file1.name,
                         content: file1Base64,
