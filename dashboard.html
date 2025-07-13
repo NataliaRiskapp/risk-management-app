@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Dashboard Generator - HaskoningDHV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, #4299e1 0%, #667eea 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-icon::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            background: linear-gradient(45deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+            border-radius: 12px;
+        }
+
+        .chart-visual {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 3px;
+            height: 35px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .bar {
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .bar:nth-child(1) { width: 6px; height: 15px; background: #68d391; }
+        .bar:nth-child(2) { width: 6px; height: 25px; background: #9ae6b4; }
+        .bar:nth-child(3) { width: 6px; height: 30px; background: #fbb6ce; }
+        .bar:nth-child(4) { width: 6px; height: 20px; background: #fed7aa; }
+        .bar:nth-child(5) { width: 6px; height: 35px; background: #fef08a; }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .upload-section {
+            margin-bottom: 40px;
+        }
+
+        .file-upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .file-upload {
+            border: 3px dashed #4299e1;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(66, 153, 225, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(66, 153, 225, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .file-upload:hover::before {
+            opacity: 1;
+        }
+
+        .file-upload:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(66, 153, 225, 0.2);
+            border-color: #3b82f6;
+        }
+
+        .file-upload.dragover {
+            background: rgba(66, 153, 225, 0.1);
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+
+        .file-upload-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #4299e1;
+        }
+
+        .file-upload h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .file-upload p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(66, 153, 225, 0.1);
+            border-radius: 8px;
+            font-weight: bold;
+            color: #2d3748;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .context-section {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-button:hover::before {
+            left: 100%;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(66, 153, 225, 0.4);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-button:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(66, 153, 225, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .loading-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading h3 {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .loading p {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #bfdbfe;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .result h3 {
+            font-size: 24px;
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+
+        .result p {
+            color: #1e3a8a;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .result-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .result-button {
+            background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .result-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(66, 153, 225, 0.3);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 15px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .footer strong {
+            color: #2d3748;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .file-upload-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .result-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="app-icon">
+                <div class="chart-visual">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+            <h1>Risk Dashboard Generator</h1>
+            <p>Royal HaskoningDHV Infrastructure Risk Dashboard Platform</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section-title">
+                <div class="section-icon">📊</div>
+                Interactive Dashboard Generation
+            </div>
+
+            <div class="upload-section">
+                <div class="file-upload-grid">
+                    <div class="file-upload" onclick="document.getElementById('file1').click()">
+                        <div class="file-upload-icon">📄</div>
+                        <h3>Upload First Risk Register</h3>
+                        <p>Period 1 risk database (.xlsx, .csv, .xls)</p>
+                        <p><strong>Click to select or drag & drop</strong></p>
+                        <input type="file" id="file1" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileUpload(1, this)">
+                        <div id="file1-info" class="file-info"></div>
+                    </div>
+
+                    <div class="file-upload" onclick="document.getElementById('file2').click()">
+                        <div class="file-upload-icon">📄</div>
+                        <h3>Upload Second Risk Register</h3>
+                        <p>Period 2 risk database (.xlsx, .csv, .xls)</p>
+                        <p><strong>Click to select or drag & drop</strong></p>
+                        <input type="file" id="file2" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileUpload(2, this)">
+                        <div id="file2-info" class="file-info"></div>
+                    </div>
+                </div>
+
+                <div class="context-section">
+                    <div class="form-group">
+                        <label for="comparisonContext">📝 Dashboard Context (Optional)</label>
+                        <textarea id="comparisonContext" placeholder="Provide context about what changed between these versions, specific areas to focus on for the dashboard, project background, or any other relevant information that will help create a more accurate and insightful dashboard..."></textarea>
+                    </div>
+                </div>
+
+                <button class="submit-button" onclick="generateDashboard()" disabled id="generateBtn">
+                    📈 Generate Interactive Dashboard
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-icon">⚙️</div>
+                <h3>Generating Your Dashboard...</h3>
+                <p>AI is analyzing your risk data and creating a professional interactive dashboard. This may take 2-3 minutes.</p>
+            </div>
+
+            <div class="result" id="result">
+                <div class="result-icon">✅</div>
+                <h3>Dashboard Generated Successfully!</h3>
+                <p id="result-text">Your interactive risk management dashboard has been created and is ready to view.</p>
+                <div class="result-buttons">
+                    <button class="result-button" onclick="openDashboard()">🚀 Open Dashboard</button>
+                    <button class="result-button" onclick="downloadDashboard()">💾 Download HTML</button>
+                </div>
+            </div>
+
+            <div class="footer">
+                <strong>RHDHV Risk Dashboard Generator</strong> | 
+                Powered by Claude AI | 
+                Generated on: <span id="current-date"></span> | 
+                🏠 Confidential - For internal use only
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = { file1: null, file2: null };
+        let lastResult = null;
+
+        // NEW WEBHOOK URL FOR DASHBOARD WORKFLOW
+        const WEBHOOK_URL = 'https://riskapp.app.n8n.cloud/webhook/webhook-dashboard/risk-webapp';
+
+        function handleFileUpload(fileNumber, input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            const validTypes = ['.xlsx', '.xls', '.csv'];
+            const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+            
+            if (!validTypes.includes(fileExtension)) {
+                alert('Please upload only Excel (.xlsx, .xls) or CSV files.');
+                return;
+            }
+            
+            // Validate file size (max 10MB)
+            if (file.size > 
