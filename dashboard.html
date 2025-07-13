@@ -484,8 +484,8 @@
         let uploadedFiles = { file1: null, file2: null };
         let lastResult = null;
 
-        // NEW WEBHOOK URL FOR DASHBOARD WORKFLOW
-       const WEBHOOK_URL = 'https://riskapp.app.n8n.cloud/webhook-test/webhook-dashboard/risk-webapp';
+        // CORRECTED WEBHOOK URL TO MATCH YOUR N8N
+        const WEBHOOK_URL = 'https://riskapp.app.n8n.cloud/webhook-test/webhook-dashboard/risk-webapp';
 
         function handleFileUpload(fileNumber, input) {
             const file = input.files[0];
@@ -501,4 +501,162 @@
             }
             
             // Validate file size (max 10MB)
-            if (file.size > 
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
+                return;
+            }
+            
+            uploadedFiles[`file${fileNumber}`] = file;
+            const fileInfo = document.getElementById(`file${fileNumber}-info`);
+            fileInfo.textContent = `✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            fileInfo.classList.add('show');
+            
+            // Enable generate button if both files uploaded
+            if (uploadedFiles.file1 && uploadedFiles.file2) {
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('generateBtn').innerHTML = '📈 Generate Interactive Dashboard';
+            }
+        }
+
+        async function generateDashboard() {
+            if (!uploadedFiles.file1 || !uploadedFiles.file2) {
+                alert('Please upload both risk registers before generating dashboard.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            try {
+                // Convert files to base64
+                const file1Base64 = await fileToBase64(uploadedFiles.file1);
+                const file2Base64 = await fileToBase64(uploadedFiles.file2);
+
+                // FIXED: Match the format expected by your n8n workflow
+                const formData = {
+                    file1: {
+                        name: uploadedFiles.file1.name,
+                        content: file1Base64,
+                        type: uploadedFiles.file1.type,
+                        size: uploadedFiles.file1.size
+                    },
+                    file2: {
+                        name: uploadedFiles.file2.name,
+                        content: file2Base64,
+                        type: uploadedFiles.file2.type,
+                        size: uploadedFiles.file2.size
+                    },
+                    comparisonContext: document.getElementById('comparisonContext').value || 'Dashboard generation for risk comparison analysis'
+                };
+
+                console.log('Sending dashboard data to:', WEBHOOK_URL);
+                console.log('Data:', formData);
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Dashboard result received:', result);
+                    lastResult = result;
+                    
+                    // Hide loading and show result
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('result-text').textContent = 'Your interactive dashboard has been generated successfully and is ready to view!';
+                } else {
+                    const errorText = await response.text();
+                    console.error('Server error:', errorText);
+                    throw new Error('Server error: ' + response.status);
+                }
+            } catch (error) {
+                console.error('Request failed:', error);
+                // Hide loading and show error
+                document.getElementById('loading').style.display = 'none';
+                alert('Error generating dashboard: ' + error.message + '\n\nPlease check:\n1. Your internet connection\n2. The n8n workflow is running\n3. Both files are valid risk registers\n4. The webhook URL is correct');
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function openDashboard() {
+            if (lastResult && lastResult.dashboard) {
+                const newWindow = window.open();
+                newWindow.document.write(lastResult.dashboard);
+                newWindow.document.close();
+            } else {
+                alert('No dashboard available to open. Please generate a dashboard first.');
+            }
+        }
+
+        function downloadDashboard() {
+            if (lastResult && lastResult.dashboard) {
+                const blob = new Blob([lastResult.dashboard], { type: 'text/html' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = lastResult.filename || 'risk_dashboard.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } else {
+                alert('No dashboard available to download. Please generate a dashboard first.');
+            }
+        }
+
+        // Set current date
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            document.getElementById('current-date').textContent = today.toLocaleDateString('en-GB');
+        });
+
+        // Drag and drop functionality
+        ['file1', 'file2'].forEach(fileId => {
+            const fileInput = document.getElementById(fileId);
+            const uploadDiv = fileInput.parentElement;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadDiv.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadDiv.addEventListener(eventName, () => uploadDiv.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadDiv.addEventListener(eventName, () => uploadDiv.classList.remove('dragover'), false);
+            });
+
+            uploadDiv.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileUpload(fileId === 'file1' ? 1 : 2, fileInput);
+                }
+            }, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    </script>
+</body>
+</html>
