@@ -738,7 +738,7 @@
             await sendToWebhook(formData);
         }
 
-        // Enhanced result handling for Dutch reports
+        // Enhanced result handling for both JSON and Text responses
         async function sendToWebhook(data) {
             // Show loading with enhanced messaging
             document.getElementById('loading').style.display = 'block';
@@ -770,7 +770,22 @@
                 console.log('Enhanced Response ok:', response.ok);
 
                 if (response.ok) {
-                    const result = await response.json();
+                    // Handle both text and JSON responses
+                    let result;
+                    const responseText = await response.text();
+                    
+                    try {
+                        // Try to parse as JSON first
+                        result = JSON.parse(responseText);
+                    } catch (e) {
+                        // If not JSON, treat as direct text response
+                        result = {
+                            success: true,
+                            report: responseText,
+                            filename: "Enhanced_Risk_Report_T3.doc"
+                        };
+                    }
+
                     console.log('Enhanced Result received:', result);
                     lastResult = result;
                     
@@ -798,6 +813,8 @@
                     const downloadBtn = document.querySelector('button[onclick="downloadResult()"]');
                     if (result.metadata && result.metadata.suggestedFilename) {
                         downloadBtn.textContent = `📄 Download ${result.metadata.suggestedFilename}`;
+                    } else if (result.filename) {
+                        downloadBtn.textContent = `📄 Download ${result.filename}`;
                     } else {
                         downloadBtn.textContent = '📄 Download Enhanced T3 Report';
                     }
