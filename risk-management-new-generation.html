@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Management Suite (Enhanced) - Haskoning</title>
+    <title>Risk Management App (RiskLenceAI) - Haskoning</title>
     <style>
         * {
             margin: 0;
@@ -383,7 +383,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="version-badge">Enhanced v2.0</div>
+            <div class="version-badge">RiskLenceAI v2.0</div>
             <div class="app-icon">
                 <div class="chart-visual">
                     <div class="bar"></div>
@@ -393,8 +393,8 @@
                     <div class="bar"></div>
                 </div>
             </div>
-            <h1>Risk Management Suite (Enhanced)</h1>
-            <p>Haskoning Infrastructure Risk Assessment Platform - New Generation</p>
+            <h1>Risk Management App (RiskLenceAI)</h1>
+            <p>Haskoning Infrastructure Risk Assessment Platform - AI-Powered</p>
         </div>
 
         <div class="main-content">
@@ -567,14 +567,14 @@
             <div id="compare-form" class="form-section">
                 <div class="section-title">
                     <div class="section-icon">📊</div>
-                    Enhanced Risk Register Comparison
+                    AI-Powered Risk Register Comparison
                 </div>
                 
                 <div class="comparison-section">
                     <div class="file-upload" onclick="document.getElementById('file1').click()">
                         <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
                         <h3>Upload First Risk Register (Period 1)</h3>
-                        <p>Click to select or drag & drop (.xlsx, .csv, .xls)<br><strong>Enhanced Excel Processing</strong></p>
+                        <p>Click to select or drag & drop (.xlsx, .csv, .xls)<br><strong>AI Excel Processing</strong></p>
                         <input type="file" id="file1" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileUpload(1, this)">
                         <div id="file1-info" style="margin-top: 10px; font-weight: bold; color: #4299e1;"></div>
                     </div>
@@ -582,31 +582,31 @@
                     <div class="file-upload" onclick="document.getElementById('file2').click()">
                         <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
                         <h3>Upload Second Risk Register (Period 2)</h3>
-                        <p>Click to select or drag & drop (.xlsx, .csv, .xls)<br><strong>Enhanced Excel Processing</strong></p>
+                        <p>Click to select or drag & drop (.xlsx, .csv, .xls)<br><strong>AI Excel Processing</strong></p>
                         <input type="file" id="file2" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileUpload(2, this)">
                         <div id="file2-info" style="margin-top: 10px; font-weight: bold; color: #4299e1;"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="comparisonContext">Comparison Context (Optional)</label>
-                        <textarea id="comparisonContext" placeholder="Provide context about what changed between these versions, specific areas to focus on, or any other relevant information for enhanced T3 analysis..."></textarea>
+                        <textarea id="comparisonContext" placeholder="Provide context about what changed between these versions, specific areas to focus on, or any other relevant information for T3 analysis..."></textarea>
                     </div>
 
-                    <button class="submit-button" onclick="compareRiskRegisters()" disabled id="compareBtn">⚡ Generate Enhanced T3 Report</button>
+                    <button class="submit-button" onclick="compareRiskRegisters()" disabled id="compareBtn">⚡ Generate AI T3 Report</button>
                 </div>
             </div>
 
             <div class="loading" id="loading">
                 <div style="font-size: 48px;">⏳</div>
                 <h3>Processing your request...</h3>
-                <p>Enhanced AI is analyzing your data and generating the T3 report. This may take a few minutes.</p>
+                <p>RiskLenceAI is analyzing your data and generating the T3 report. This may take a few minutes.</p>
             </div>
 
             <div class="result" id="result">
-                <h3>✅ Enhanced Analysis Complete!</h3>
+                <h3>✅ AI Analysis Complete!</h3>
                 <p id="result-text"></p>
-                <div id="report-content" style="margin-top: 20px; padding: 20px; background: white; border-radius: 8px; white-space: pre-wrap; max-height: 500px; overflow-y: auto;"></div>
-                <button class="submit-button" onclick="downloadResult()" style="margin-top: 15px;">📄 Download Enhanced Report</button>
+                <div id="report-content" style="margin-top: 20px; padding: 20px; background: white; border-radius: 8px; white-space: pre-wrap; max-height: 500px; overflow-y: auto; font-family: 'Segoe UI', sans-serif; line-height: 1.6;"></div>
+                <button class="submit-button" onclick="downloadResult()" style="margin-top: 15px;">📄 Download Word Report</button>
             </div>
         </div>
     </div>
@@ -616,7 +616,7 @@
         let uploadedFiles = { file1: null, file2: null };
         let lastResult = null;
 
-        // ✅ CORRECTED WEBHOOK URL!
+        // ✅ WEBHOOK URL FOR YOUR N8N WORKFLOW
         const WEBHOOK_URL = 'https://riskapp.app.n8n.cloud/webhook-test/new-risk-webapp';
 
         function handleNavigation(section) {
@@ -640,7 +640,6 @@
             } else if (section === 'compare-report') {
                 document.getElementById('compare-form').classList.add('active');
             } else {
-                // For other options, show alert (you can implement these later)
                 alert('Feature coming soon: ' + section.replace('-', ' ').toUpperCase());
             }
         }
@@ -665,17 +664,16 @@
             }
             
             uploadedFiles[`file${fileNumber}`] = file;
-            document.getElementById(`file${fileNumber}-info`).textContent = `✅ ${file.name} (Enhanced Processing Ready)`;
+            document.getElementById(`file${fileNumber}-info`).textContent = `✅ ${file.name} (AI Processing Ready)`;
             
             // Enable compare button if both files uploaded
             if (uploadedFiles.file1 && uploadedFiles.file2) {
                 document.getElementById('compareBtn').disabled = false;
-                document.getElementById('compareBtn').textContent = '⚡ Generate Enhanced T3 Report';
+                document.getElementById('compareBtn').textContent = '⚡ Generate AI T3 Report';
             }
         }
 
         async function generateRiskRegister() {
-            // Collect form data
             const formData = {
                 mode: 'generate_new',
                 projectName: document.getElementById('project-name').value,
@@ -683,8 +681,8 @@
                 projectPhase: document.getElementById('project-phase').value,
                 projectTimeline: document.getElementById('project-duration').value,
                 countryRegion: document.getElementById('project-location').value,
-                riskMethodology: '5x5', // Default since not in form
-                numberOfRisks: '15', // Default since not in form
+                riskMethodology: '5x5',
+                numberOfRisks: '15',
                 budgetRange: document.getElementById('project-budget').value,
                 contractForm: document.getElementById('contract-form').value,
                 clientType: document.getElementById('client-type').value,
@@ -738,24 +736,21 @@
             await sendToWebhook(formData);
         }
 
-        // Enhanced result handling for both JSON and Text responses
+        // BULLETPROOF response handling - works with your n8n text response
         async function sendToWebhook(data) {
-            // Show loading with enhanced messaging
             document.getElementById('loading').style.display = 'block';
             document.getElementById('result').style.display = 'none';
             
-            // Update loading message based on mode
             const loadingElement = document.getElementById('loading');
             if (data.mode === 'compare_registers') {
                 loadingElement.innerHTML = `
-                    <div style="font-size: 48px;">⚡</div>
-                    <h3>Enhanced T3 Analysis Running...</h3>
-                    <p>Advanced AI is processing your Excel files with enhanced algorithms and generating a complete T3 rapport. This enhanced version provides deeper insights and precise data extraction.</p>
+                    <div style="font-size: 48px;">🤖</div>
+                    <h3>RiskLenceAI Analysis Running...</h3>
+                    <p>Our AI is processing your Excel files and generating a complete T3 rapport with real data extraction and analysis.</p>
                 `;
             }
 
-            console.log('Sending data to Enhanced Webhook:', WEBHOOK_URL);
-            console.log('Enhanced Data:', data);
+            console.log('Sending to RiskLenceAI:', WEBHOOK_URL);
 
             try {
                 const response = await fetch(WEBHOOK_URL, {
@@ -766,69 +761,56 @@
                     body: JSON.stringify(data)
                 });
 
-                console.log('Enhanced Response status:', response.status);
-                console.log('Enhanced Response ok:', response.ok);
+                console.log('Response status:', response.status);
 
                 if (response.ok) {
-                    // Handle both text and JSON responses
-                    let result;
                     const responseText = await response.text();
+                    console.log('Raw response:', responseText);
                     
+                    let result;
                     try {
                         // Try to parse as JSON first
                         result = JSON.parse(responseText);
                     } catch (e) {
-                        // If not JSON, treat as direct text response
+                        // If parsing fails, treat the whole response as the report
                         result = {
                             success: true,
                             report: responseText,
-                            filename: "Enhanced_Risk_Report_T3.doc"
+                            filename: "RiskLenceAI_T3_Report.doc"
                         };
                     }
 
-                    console.log('Enhanced Result received:', result);
                     lastResult = result;
                     
                     // Hide loading and show result
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('result').style.display = 'block';
                     
-                    // Enhanced success messaging for Dutch reports
                     if (data.mode === 'compare_registers') {
-                        document.getElementById('result-text').textContent = 'Uw Enhanced T3-rapportage is succesvol gegenereerd! Deze verbeterde versie bevat nauwkeurigere data-extractie en volledige T3 structuur analyse van uw risicodossiers.';
+                        document.getElementById('result-text').textContent = 'Uw RiskLenceAI T3-rapportage is succesvol gegenereerd! De AI heeft uw risicodossiers geanalyseerd en een complete structuur analyse gemaakt.';
                     } else {
-                        document.getElementById('result-text').textContent = 'Your enhanced analysis has been completed successfully!';
+                        document.getElementById('result-text').textContent = 'Your RiskLenceAI analysis has been completed successfully!';
                     }
                     
-                    // Display the report content with better formatting
+                    // Display the report content
                     if (result.report) {
                         const reportContent = document.getElementById('report-content');
                         reportContent.textContent = result.report;
-                        reportContent.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-                        reportContent.style.lineHeight = "1.6";
-                        reportContent.style.fontSize = "14px";
                     }
                     
-                    // Update download button with better filename
+                    // Update download button
                     const downloadBtn = document.querySelector('button[onclick="downloadResult()"]');
-                    if (result.metadata && result.metadata.suggestedFilename) {
-                        downloadBtn.textContent = `📄 Download ${result.metadata.suggestedFilename}`;
-                    } else if (result.filename) {
+                    if (result.filename) {
                         downloadBtn.textContent = `📄 Download ${result.filename}`;
-                    } else {
-                        downloadBtn.textContent = '📄 Download Enhanced T3 Report';
                     }
                     
                 } else {
-                    const errorText = await response.text();
-                    console.error('Enhanced Server error:', errorText);
                     throw new Error('Server error: ' + response.status);
                 }
             } catch (error) {
-                console.error('Enhanced Request failed:', error);
-                // Hide loading and show error
+                console.error('Request failed:', error);
                 document.getElementById('loading').style.display = 'none';
-                alert(`Fout bij genereren enhanced rapport: ${error.message}\n\nControleer:\n1. Uw internetverbinding\n2. Of de Enhanced n8n workflow actief is\n3. Of de nieuwe webhook URL correct is\n4. Of de Excel bestanden geldig zijn`);
+                alert(`RiskLenceAI Error: ${error.message}\n\nPlease check:\n1. Your internet connection\n2. That the AI workflow is active\n3. Your Excel files are valid`);
             }
         }
 
@@ -841,22 +823,21 @@
             });
         }
 
-        // Enhanced download function with better filename handling
+        // Download function - creates Word document
         function downloadResult() {
             if (lastResult && lastResult.report) {
-                const blob = new Blob([lastResult.report], { type: 'text/plain; charset=utf-8' });
+                const blob = new Blob([lastResult.report], { 
+                    type: 'application/msword' 
+                });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 
-                // Use enhanced metadata filename if available
-                if (lastResult.metadata && lastResult.metadata.suggestedFilename) {
-                    a.download = lastResult.metadata.suggestedFilename;
-                } else if (lastResult.filename) {
+                if (lastResult.filename) {
                     a.download = lastResult.filename;
                 } else {
                     const today = new Date().toISOString().split('T')[0];
-                    a.download = `Enhanced_Risk_Management_Report_${today}.txt`;
+                    a.download = `RiskLenceAI_Report_${today}.doc`;
                 }
                 
                 document.body.appendChild(a);
@@ -871,7 +852,7 @@
             const projectId = document.getElementById('project-id');
             const today = new Date();
             const timestamp = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-            projectId.value = 'ENH-' + timestamp.replace(/-/g, '') + '-' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            projectId.value = 'RISK-' + timestamp.replace(/-/g, '') + '-' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
         });
     </script>
 </body>
